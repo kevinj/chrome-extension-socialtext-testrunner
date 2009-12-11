@@ -51,10 +51,10 @@ function getAllResults() {
             });
         }
     });
+    setTimeout(getAllResults, 30000);
 }
 
 getAllResults();
-setInterval(getAllResults, 30000);
 
 })(jQuery);
 </script>
