@@ -1,0 +1,40 @@
+<script src="jquery.js"></script>
+<script>
+(function($) {
+
+var host = "http://testrunner.socialtext.net";
+
+function showResults (data) {
+    var failed = Number(data.overall_results.failed);
+    var passed = Number(data.overall_results.passed);
+
+    if (failed > 0) {
+        chrome.browserAction.setTitle({title: failed + ' tests failing'});
+        chrome.browserAction.setBadgeText({text:"\u00D7"});
+        chrome.browserAction.setBadgeBackgroundColor({color:[255,0,0,255]});
+    }
+    else {
+        chrome.browserAction.setTitle({title: passed + ' tests passing'});
+        chrome.browserAction.setBadgeText({text:"\u2022"});
+        chrome.browserAction.setBadgeBackgroundColor({color:[0,255,0,255]});
+    }
+}
+
+function getResults() {
+    $.ajax({
+        url: host + "/stci/master/current/publishing-vars.json",
+        dataType: 'json',
+        success: function(data) {
+            showResults(data);
+        },
+        error: function(xhr, statusText, errorThrown) {
+            alert('Error: ' + xhr.responseText);
+        }
+    });
+}
+
+getResults();
+setInterval(getResults, 30000);
+
+})(jQuery);
+</script>
