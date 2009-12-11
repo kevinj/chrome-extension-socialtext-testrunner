@@ -8,7 +8,7 @@ function showFailed(name, num) {
     chrome.browserAction.setTitle({
         title: num + ' tests failed in ' + name + ' testrun.'
     });
-    chrome.browserAction.setBadgeText({text:"\u00D7"});
+    chrome.browserAction.setBadgeText({text:String(num)});
     chrome.browserAction.setBadgeBackgroundColor({color:[255,0,0,255]});
 }
 
@@ -16,7 +16,7 @@ function showPassed(name, num) {
     chrome.browserAction.setTitle({
         title: num + ' tests passed in ' + name + ' testrun.'
     });
-    chrome.browserAction.setBadgeText({text:"\u2022"});
+    chrome.browserAction.setBadgeText({text:String(num)});
     chrome.browserAction.setBadgeBackgroundColor({color:[0,255,0,255]});
 }
 function getResults(version, callback) {
@@ -42,17 +42,17 @@ function getResults(version, callback) {
 }
 
 function getAllResults() {
-    getResults('in-progress', function(data){
-        if (data.failed) {
-            showFailed("in-progress testrun", data.failed);
+    getResults('current', function(curdata){
+        if (curdata.failed) {
+            showFailed("current testrun", curdata.failed);
         }
         else {
-            getResults('current', function(data){
-                if (data.failed) {
-                    showFailed("current testrun", data.failed);
+            getResults('in-progress', function(inpdata){
+                if (inpdata.failed) {
+                    showFailed("in-progress testrun", inpdata.failed);
                 }
                 else {
-                    showPassed("current testrun", data.passed);
+                    showPassed("current testrun", curdata.passed);
                 }
             });
         }
