@@ -20,9 +20,9 @@ function showResults (data) {
     }
 }
 
-function getResults() {
+function getResults(version) {
     $.ajax({
-        url: host + "/stci/master/current/publishing-vars.json",
+        url: host + '/stci/master/' + version + '/publishing-vars.json',
         dataType: 'json',
         success: function(data) {
             showResults(data);
@@ -33,8 +33,8 @@ function getResults() {
     });
 }
 
-getResults();
-setInterval(getResults, 30000);
+getResults('in-progress');
+setInterval(function() { getResults('in-progress') }, 30000);
 
 })(jQuery);
 </script>
