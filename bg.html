@@ -4,28 +4,30 @@
 
 var host = "http://testrunner.socialtext.net";
 
-function showResults (data) {
-    var failed = Number(data.overall_results.failed);
-    var passed = Number(data.overall_results.passed);
-
-    if (failed > 0) {
-        chrome.browserAction.setTitle({title: failed + ' tests failing'});
-        chrome.browserAction.setBadgeText({text:"\u00D7"});
-        chrome.browserAction.setBadgeBackgroundColor({color:[255,0,0,255]});
-    }
-    else {
-        chrome.browserAction.setTitle({title: passed + ' tests passing'});
-        chrome.browserAction.setBadgeText({text:"\u2022"});
-        chrome.browserAction.setBadgeBackgroundColor({color:[0,255,0,255]});
-    }
+function showFailed(name, num) {
+    chrome.browserAction.setTitle({
+        title: num + ' tests failed in ' + name + ' testrun.'
+    });
+    chrome.browserAction.setBadgeText({text:"\u00D7"});
+    chrome.browserAction.setBadgeBackgroundColor({color:[255,0,0,255]});
 }
 
-function getResults(version) {
+function showPassed(name, num) {
+    chrome.browserAction.setTitle({
+        title: num + ' tests passed in ' + name + ' testrun.'
+    });
+    chrome.browserAction.setBadgeText({text:"\u2022"});
+    chrome.browserAction.setBadgeBackgroundColor({color:[0,255,0,255]});
+}
+function getResults(version, callback) {
     $.ajax({
         url: host + '/stci/master/' + version + '/publishing-vars.json',
         dataType: 'json',
         success: function(data) {
-            showResults(data);
+            callback({
+                failed: Number(data.overall_results.failed),
+                passed: Number(data.overall_results.passed)
+            });
         },
         error: function(xhr, statusText, errorThrown) {
             alert('Error: ' + xhr.responseText);
@@ -33,8 +35,26 @@ function getResults(version) {
     });
 }
 
-getResults('in-progress');
-setInterval(function() { getResults('in-progress') }, 30000);
+function getAllResults() {
+    getResults('in-progress', function(data){
+        if (data.failed) {
+            showFailed("in-progress testrun", data.failed);
+        }
+        else {
+            getResults('current', function(data){
+                if (data.failed) {
+                    showFailed("current testrun", data.failed);
+                }
+                else {
+                    showPassed("current testrun", data.passed);
+                }
+            });
+        }
+    });
+}
+
+getAllResults();
+setInterval(getAllResults, 30000);
 
 })(jQuery);
 </script>
