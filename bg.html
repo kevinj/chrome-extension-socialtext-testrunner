@@ -30,7 +30,13 @@ function getResults(version, callback) {
             });
         },
         error: function(xhr, statusText, errorThrown) {
-            alert('Error: ' + xhr.responseText);
+            var error = xhr ? xhr.responseText : errorThrown;
+            if (!error) error = errorThrown;
+            chrome.browserAction.setTitle({ title: error });
+            chrome.browserAction.setBadgeText({text:"!"});
+            chrome.browserAction.setBadgeBackgroundColor({
+                color:[250,250,80,255]
+            });
         }
     });
 }
